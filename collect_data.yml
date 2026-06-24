@@ -1,0 +1,39 @@
+--- 
+name: Collect machine matrics
+hosts: env_dev
+become: true
+gather_facts: true
+
+tasks:
+  - name: install sysstat for Debian fam
+    apt:
+      name: sysstat
+      state: present
+    when: ansible_os_family == "Debian"
+
+  - name: Install sysstat for RedHat
+    yum:
+      name: sysstat
+      state: present
+    when: ansible_os_family == "RedHat"
+
+  - name: collect cpu details
+    shell: "mpstat 1 1 | awk '/Average/ && $NF ~ /[0-9.]+/ {print 100 - $NF}'"
+    register: cpu_stat
+
+  - name: collect memory details
+    shell: "free | awk '/Mem/{printf(\"%.2f\",  $3/$2 * 100.0)}'"
+    register: memory_stat
+
+  - name: collect disk details
+    shell: "df/ | awk 'NR==2 {print $5}' | tr -d '%'"
+    register: disk_stat
+
+  - name: Set Metrics 
+    set_fact:
+      vm_metrics:
+        hostnames: "{{ inventory_hostname }}"
+        cpu: "{{ cpu_stat.stdout | float | round(2) }}"
+        mem: "{{ memory_stat.stdout | float | round(2) }}"
+        disk: "{{ disk_stat.stdout | float | round(2) }}"
+ 

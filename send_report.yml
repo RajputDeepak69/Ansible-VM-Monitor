@@ -1,0 +1,29 @@
+- name: Generate and Send Report
+  hosts: localhost
+  gather_facts: true
+
+  tasks:
+    - name: Aggregate VM Metrics into collected_metrics fact
+      set_fact:
+        collected_metrics: >-
+          {{ 
+            (
+              '[' ~ 
+              (groups['env_dev'] | map('extract', hostvars, 'vm_metrics') | list | to_json) ~ 
+              ']'
+            ) | from_json
+          }}
+
+    - name: Set Timestamp Fact
+      set_fact:
+        timestamp: "{{ ansible_facts['date_time']['date'] }} {{ ansible_facts['date_time']['hour'] }}:{{ ansible_facts['date_time']['minute'] }}"
+    - name: Send animated HTML report via email
+      community.general.mail:
+        host: "{{ smtp_server }}"
+        port: "{{ smtp_port }}"
+        username: "{{ user_mail }}"
+        password: "{{ password }}"
+        to: "{{ destination_mail }}"
+        subject: "📊 VM Report – {{ ansible_facts['date_time']['date'] }}"
+        subtype: html
+        body: "{{ lookup('template', 'templates/report.html.j2') }}"   
