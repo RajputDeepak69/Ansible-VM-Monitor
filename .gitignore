@@ -1,0 +1,68 @@
+# Ansible Vault
+.vault_pass
+*.vault_pass
+vault_password*
+.vault_pass.txt
+
+# Temporary & Backup files
+*~
+*.tmp
+*.bak
+*.swp
+*.swo
+*.retry
+*.original
+*.pem
+# Python & Virtual Environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.ansible
+.coverage*
+.coverage
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build & Logs
+build/
+dist/
+logs/
+*.log
+.tox/
+.coverage*
+junit.xml
+xunit.xml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore decrypted files
+*.decrypted
+*_decrypted.yml
+
+# Ignore environment files
+.env
+.env.*   
