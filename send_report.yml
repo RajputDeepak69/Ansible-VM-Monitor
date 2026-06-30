@@ -1,8 +1,6 @@
 - name: Generate and Send Report
   hosts: localhost
   gather_facts: true
-  vars_files:
-    - group_vars/localhost.yml
 
   tasks:
 
