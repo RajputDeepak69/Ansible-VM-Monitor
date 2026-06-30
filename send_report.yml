@@ -1,22 +1,31 @@
 - name: Generate and Send Report
   hosts: localhost
   gather_facts: true
+  vars_files:
+    - group_vars/localhost.yml
 
   tasks:
+
     - name: Aggregate VM Metrics into collected_metrics fact
       set_fact:
-        collected_metrics: >-
-          {{ 
-            (
-              '[' ~ 
-              (groups['env_dev'] | map('extract', hostvars, 'vm_metrics') | list | to_json) ~ 
-              ']'
-            ) | from_json
-          }}
+        collected_metrics: "{{ groups['env_dev'] | map('extract', hostvars, 'vm_metrics') | list | flatten }}"
+
+
+    - name: Debug collected metrics
+      debug:
+        var: collected_metrics
+
 
     - name: Set Timestamp Fact
       set_fact:
         timestamp: "{{ ansible_facts['date_time']['date'] }} {{ ansible_facts['date_time']['hour'] }}:{{ ansible_facts['date_time']['minute'] }}"
+
+    - name: Check SMTP variables
+      debug:
+        msg:
+          - "SMTP server is {{ smtp_server }}"
+          - "SMTP port is {{ smtp_port }}"
+
     - name: Send animated HTML report via email
       community.general.mail:
         host: "{{ smtp_server }}"
@@ -24,6 +33,6 @@
         username: "{{ user_mail }}"
         password: "{{ password }}"
         to: "{{ destination_mail }}"
-        subject: "📊 VM Report – {{ ansible_facts['date_time']['date'] }}"
+        subject: "VM Report - {{ timestamp }}"
         subtype: html
-        body: "{{ lookup('template', 'templates/report.html.j2') }}"   
+        body: "{{ lookup('template', 'templates/report.html.j2') }}"
